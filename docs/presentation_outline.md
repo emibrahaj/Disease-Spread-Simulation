@@ -15,12 +15,16 @@ Each person can be:
 - healthy
 - infected
 - recovered
+- vaccinated
 
 ## Slide 4: Basic Rules
 
 - Healthy people can become infected from nearby infected people.
 - Infected people recover after some simulation steps.
 - Recovered people stay recovered.
+- Vaccinated people start immune.
+- Optional movement lets people swap with nearby grid cells.
+- Optional age groups make infection risk different for children, adults, and seniors.
 - The simulation repeats this for many steps.
 
 ## Slide 5: Why It Is Related To Parallel Programming
@@ -42,9 +46,10 @@ The parallel version splits the grid into row chunks. Each process updates one c
 - `src/parallel_simulation.py`
 - `src/performance.py`
 - `src/visualization.py`
+- `src/gui.py`
 - `tests/test_simulation.py`
 
-## Slide 9: Extra Feature
+## Slide 9: Extra Features
 
 I added an intervention setting. After a selected step, the infection probability becomes lower. This can represent prevention measures like distancing or quarantine.
 
@@ -52,6 +57,18 @@ Example:
 
 ```bash
 python main.py --mode parallel --intervention-step 30 --intervention-probability 0.12 --save-plots
+```
+
+I also added optional vaccination, movement, and age groups:
+
+```bash
+python main.py --mode parallel --vaccination-rate 0.25 --movement-probability 0.05 --age-groups --save-plots
+```
+
+There is also a simple GUI:
+
+```bash
+python main.py --mode gui
 ```
 
 ## Slide 10: Results
@@ -95,6 +112,10 @@ I can change the simulation from the terminal:
 - random seed
 - number of processes
 - intervention step
+- vaccination rate
+- movement probability
+- age groups
+- GUI mode
 
 For example:
 

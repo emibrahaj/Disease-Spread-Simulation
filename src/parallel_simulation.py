@@ -14,6 +14,7 @@ from .population import (
     count_states,
     create_initial_population,
     deterministic_chance,
+    move_population,
 )
 from .sequential_simulation import NEIGHBOR_OFFSETS
 
@@ -30,9 +31,9 @@ def _has_infected_neighbor_in_slice(state_slice: np.ndarray, local_row: int, col
 
 
 def _process_rows(
-    args: tuple[np.ndarray, np.ndarray, int, int, int, int, SimulationConfig]
+    args: tuple[np.ndarray, np.ndarray, np.ndarray, int, int, int, int, SimulationConfig]
 ) -> tuple[int, np.ndarray, np.ndarray]:
-    state_slice, age_slice, slice_start, start_row, end_row, step, config = args
+    state_slice, age_slice, age_group_slice, slice_start, start_row, end_row, step, config = args
     row_count = end_row - start_row
     target_start = start_row - slice_start
     target_end = target_start + row_count
@@ -47,7 +48,11 @@ def _process_rows(
             if state_slice[source_row, col] == HEALTHY:
                 exposed = _has_infected_neighbor_in_slice(state_slice, source_row, col)
                 chance = deterministic_chance(row, col, step, config.seed)
-                if exposed and chance < infection_probability:
+                susceptibility = config.susceptibility_for_age_group(
+                    int(age_group_slice[source_row, col])
+                )
+                adjusted_probability = min(1.0, infection_probability * susceptibility)
+                if exposed and chance < adjusted_probability:
                     next_rows[local_row, col] = INFECTED
                     next_age_rows[local_row, col] = 0
             elif state_slice[source_row, col] == INFECTED:
@@ -77,8 +82,11 @@ def step_parallel(
     step: int,
     config: SimulationConfig,
     pool: PoolType | None = None,
+    age_groups: np.ndarray | None = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Advance the model by one step, splitting grid rows across processes."""
+    if age_groups is None:
+        age_groups = np.ones_like(state, dtype=np.int8)
     process_count = min(config.processes, cpu_count(), state.shape[0])
     tasks = []
     for start_row, end_row in _row_chunks(state.shape[0], process_count):
@@ -88,6 +96,7 @@ def step_parallel(
             (
                 state[slice_start:slice_end],
                 infection_age[slice_start:slice_end],
+                age_groups[slice_start:slice_end],
                 slice_start,
                 start_row,
                 end_row,
@@ -116,18 +125,24 @@ def step_parallel(
 
 def run_parallel(config: SimulationConfig) -> Tuple[np.ndarray, List[dict[str, int]]]:
     """Run the complete disease simulation using multiprocessing."""
-    state, infection_age = create_initial_population(config)
+    state, infection_age, age_groups = create_initial_population(config)
     history = [count_states(state)]
     process_count = min(config.processes, cpu_count(), state.shape[0])
 
     if process_count == 1:
         for step in range(config.steps):
-            state, infection_age = step_parallel(state, infection_age, step, config)
+            state, infection_age, age_groups = move_population(state, infection_age, age_groups, step, config)
+            state, infection_age = step_parallel(state, infection_age, step, config, age_groups=age_groups)
             history.append(count_states(state))
     else:
         with Pool(processes=process_count) as pool:
             for step in range(config.steps):
-                state, infection_age = step_parallel(state, infection_age, step, config, pool)
+                state, infection_age, age_groups = move_population(
+                    state, infection_age, age_groups, step, config
+                )
+                state, infection_age = step_parallel(
+                    state, infection_age, step, config, pool, age_groups
+                )
                 history.append(count_states(state))
 
     return state, history

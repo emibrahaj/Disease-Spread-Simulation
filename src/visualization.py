@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import ListedColormap
 
-from .population import HEALTHY, INFECTED, RECOVERED
+from .population import HEALTHY, INFECTED, RECOVERED, VACCINATED
 
 
 def plot_history(
@@ -21,11 +21,14 @@ def plot_history(
     healthy = [item["healthy"] for item in history]
     infected = [item["infected"] for item in history]
     recovered = [item["recovered"] for item in history]
+    vaccinated = [item.get("vaccinated", 0) for item in history]
 
     plt.figure(figsize=(9, 5))
     plt.plot(steps, healthy, label="Healthy", color="#2f80ed")
     plt.plot(steps, infected, label="Infected", color="#eb5757")
     plt.plot(steps, recovered, label="Recovered", color="#27ae60")
+    if any(vaccinated):
+        plt.plot(steps, vaccinated, label="Vaccinated", color="#8e44ad")
     plt.xlabel("Simulation step")
     plt.ylabel("People")
     if intervention_step is not None:
@@ -52,15 +55,16 @@ def plot_history(
 
 def plot_grid(state: np.ndarray, output_path: str | Path | None = None) -> None:
     """Show the final city grid."""
-    cmap = ListedColormap(["#2f80ed", "#eb5757", "#27ae60"])
+    cmap = ListedColormap(["#2f80ed", "#eb5757", "#27ae60", "#8e44ad"])
     labels = {
         HEALTHY: "Healthy",
         INFECTED: "Infected",
         RECOVERED: "Recovered",
+        VACCINATED: "Vaccinated",
     }
 
     plt.figure(figsize=(6, 6))
-    plt.imshow(state, cmap=cmap, vmin=HEALTHY, vmax=RECOVERED)
+    plt.imshow(state, cmap=cmap, vmin=HEALTHY, vmax=VACCINATED)
     colorbar = plt.colorbar(ticks=list(labels.keys()), fraction=0.046, pad=0.04)
     colorbar.ax.set_yticklabels([labels[key] for key in labels])
     plt.title("Final Population State")

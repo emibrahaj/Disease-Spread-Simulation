@@ -13,7 +13,7 @@ from src.visualization import plot_grid, plot_history
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Parallel disease spread simulation")
-    parser.add_argument("--mode", choices=["sequential", "parallel", "compare"], default="parallel")
+    parser.add_argument("--mode", choices=["sequential", "parallel", "compare", "gui"], default="parallel")
     parser.add_argument("--grid-size", type=int, default=180)
     parser.add_argument("--steps", type=int, default=120)
     parser.add_argument("--initial-infected", type=int, default=18)
@@ -33,6 +33,23 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Lower infection probability after the intervention step.",
     )
+    parser.add_argument(
+        "--vaccination-rate",
+        type=float,
+        default=0.0,
+        help="Fraction of initially healthy people who start vaccinated and immune.",
+    )
+    parser.add_argument(
+        "--movement-probability",
+        type=float,
+        default=0.0,
+        help="Chance each person swaps with a neighboring cell before each step.",
+    )
+    parser.add_argument(
+        "--age-groups",
+        action="store_true",
+        help="Use child, adult, and senior susceptibility groups.",
+    )
     parser.add_argument("--save-plots", action="store_true")
     return parser
 
@@ -48,6 +65,9 @@ def make_config(args: argparse.Namespace) -> SimulationConfig:
         processes=args.processes,
         intervention_step=args.intervention_step,
         intervention_infection_probability=args.intervention_probability,
+        vaccination_rate=args.vaccination_rate,
+        movement_probability=args.movement_probability,
+        use_age_groups=args.age_groups,
     )
 
 
@@ -57,7 +77,8 @@ def print_history_summary(history: list[dict[str, int]]) -> None:
     print(f"Peak infected: {peak['infected']} people at step {peak_step}")
     print(
         "Final counts: "
-        f"healthy={final['healthy']}, infected={final['infected']}, recovered={final['recovered']}"
+        f"healthy={final['healthy']}, infected={final['infected']}, "
+        f"recovered={final['recovered']}, vaccinated={final.get('vaccinated', 0)}"
     )
 
 
@@ -67,6 +88,13 @@ def actual_process_count(config: SimulationConfig) -> int:
 
 def main() -> None:
     args = build_parser().parse_args()
+
+    if args.mode == "gui":
+        from src.gui import launch_gui
+
+        launch_gui()
+        return
+
     config = make_config(args)
     config.validate()
 
@@ -88,6 +116,12 @@ def main() -> None:
             f"step {config.intervention_step}, infection probability "
             f"{config.intervention_infection_probability}"
         )
+    if config.vaccination_rate > 0:
+        print(f"Vaccination rate: {config.vaccination_rate}")
+    if config.movement_probability > 0:
+        print(f"Movement probability: {config.movement_probability}")
+    if config.use_age_groups:
+        print("Age groups: enabled")
     print_history_summary(history)
 
     if args.save_plots:

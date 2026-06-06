@@ -7,6 +7,7 @@ Each person can be:
 - healthy
 - infected
 - recovered
+- vaccinated
 
 I made two versions of the simulation: one sequential version and one parallel version using Python multiprocessing. The main point of the project is to compare how the program runs when the work is done by one process versus multiple processes.
 
@@ -15,6 +16,8 @@ I made two versions of the simulation: one sequential version and one parallel v
 The city is stored as a 2D grid. During each step, every person checks the people around them. If a healthy person has an infected neighbor, there is a chance they also become infected. After being infected for a certain number of steps, the person becomes recovered.
 
 The parallel version splits the grid into row sections. Each process works on one section, then the results are joined together for the next step.
+
+The simulation also includes optional vaccination, movement, and age-group settings. Vaccinated people start immune, movement lets people swap with nearby grid cells, and age groups can make children, adults, and seniors have different infection risks.
 
 ## Files
 
@@ -92,6 +95,18 @@ Run an intervention example, where prevention measures start at step 30:
 python main.py --mode parallel --intervention-step 30 --intervention-probability 0.12 --save-plots
 ```
 
+Run with vaccination, movement, and age groups:
+
+```bash
+python main.py --mode parallel --vaccination-rate 0.25 --movement-probability 0.05 --age-groups --save-plots
+```
+
+Open the graphical interface:
+
+```bash
+python main.py --mode gui
+```
+
 Run the intervention comparison experiment:
 
 ```bash
@@ -127,10 +142,15 @@ Useful options:
 - `--processes`: how many worker processes the parallel version should use
 - `--intervention-step`: step where prevention measures start
 - `--intervention-probability`: infection probability after prevention measures start
+- `--vaccination-rate`: fraction of initially healthy people who start vaccinated
+- `--movement-probability`: chance each person moves by swapping with a neighbor each step
+- `--age-groups`: enables child, adult, and senior infection-risk differences
+
+The GUI can also run the simulation with the same main settings and show the history chart inside a window.
 
 Using the same seed and same settings gives the same result every time. Changing the seed gives a different outbreak pattern.
 
-On Windows, the easiest way is also to double-click:
+On Windows, the easiest way to open the graphical interface is to double-click:
 
 ```text
 run_demo.bat

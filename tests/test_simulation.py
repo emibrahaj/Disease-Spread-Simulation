@@ -4,20 +4,29 @@ import pytest
 from src.config import SimulationConfig
 from src.parallel_simulation import run_parallel, step_parallel
 from src.performance import benchmark_process_counts
-from src.population import HEALTHY, INFECTED, count_states, create_initial_population
+from src.population import (
+    HEALTHY,
+    INFECTED,
+    VACCINATED,
+    count_states,
+    create_initial_population,
+    move_population,
+)
 from src.sequential_simulation import run_sequential, step_sequential
 
 
 def test_initial_population_has_expected_counts():
     config = SimulationConfig(grid_size=20, initial_infected=5)
-    state, infection_age = create_initial_population(config)
+    state, infection_age, age_groups = create_initial_population(config)
 
     counts = count_states(state)
 
     assert counts["infected"] == 5
     assert counts["healthy"] == 395
     assert counts["recovered"] == 0
+    assert counts["vaccinated"] == 0
     assert np.all(infection_age == 0)
+    assert age_groups.shape == state.shape
 
 
 def test_infection_spreads_to_neighbor_when_probability_is_one():
@@ -39,10 +48,10 @@ def test_infection_spreads_to_neighbor_when_probability_is_one():
 
 def test_parallel_step_matches_sequential_step():
     config = SimulationConfig(grid_size=15, initial_infected=6, steps=1, processes=2)
-    state, infection_age = create_initial_population(config)
+    state, infection_age, age_groups = create_initial_population(config)
 
-    sequential_state, sequential_age = step_sequential(state, infection_age, 0, config)
-    parallel_state, parallel_age = step_parallel(state, infection_age, 0, config)
+    sequential_state, sequential_age = step_sequential(state, infection_age, 0, config, age_groups)
+    parallel_state, parallel_age = step_parallel(state, infection_age, 0, config, age_groups=age_groups)
 
     np.testing.assert_array_equal(parallel_state, sequential_state)
     np.testing.assert_array_equal(parallel_age, sequential_age)
@@ -90,6 +99,55 @@ def test_intervention_reduces_spread():
     _, intervention_history = run_parallel(intervention_config)
 
     assert intervention_history[-1]["infected"] <= normal_history[-1]["infected"]
+
+
+def test_vaccination_adds_immune_population():
+    config = SimulationConfig(grid_size=10, initial_infected=5, vaccination_rate=0.5)
+
+    state, _, _ = create_initial_population(config)
+    counts = count_states(state)
+
+    assert counts["infected"] == 5
+    assert counts["vaccinated"] == 48
+    assert counts["healthy"] == 47
+
+
+def test_vaccinated_people_do_not_become_infected():
+    config = SimulationConfig(grid_size=3, infection_probability=1.0)
+    state = np.full((3, 3), HEALTHY, dtype=np.int8)
+    state[1, 1] = INFECTED
+    state[0, 0] = VACCINATED
+    infection_age = np.zeros_like(state, dtype=np.int16)
+
+    next_state, _ = step_sequential(state, infection_age, 0, config)
+
+    assert next_state[0, 0] == VACCINATED
+
+
+def test_age_groups_change_infection_probability():
+    config = SimulationConfig(
+        grid_size=3,
+        infection_probability=0.5,
+        use_age_groups=True,
+        child_susceptibility=0.0,
+    )
+    state = np.full((3, 3), HEALTHY, dtype=np.int8)
+    state[1, 1] = INFECTED
+    infection_age = np.zeros_like(state, dtype=np.int16)
+    age_groups = np.zeros_like(state, dtype=np.int8)
+
+    next_state, _ = step_sequential(state, infection_age, 0, config, age_groups)
+
+    assert np.count_nonzero(next_state == INFECTED) == 1
+
+
+def test_movement_keeps_state_counts_same():
+    config = SimulationConfig(grid_size=8, initial_infected=4, movement_probability=1.0)
+    state, infection_age, age_groups = create_initial_population(config)
+
+    moved_state, _, _ = move_population(state, infection_age, age_groups, 0, config)
+
+    assert count_states(moved_state) == count_states(state)
 
 
 def test_process_benchmark_includes_speedup():

@@ -9,6 +9,7 @@ A person can be in one of these states:
 - healthy
 - infected
 - recovered
+- vaccinated
 
 The idea is similar to a basic SIR model. It is not meant to be a perfect medical model, but it is a good example for showing how a large amount of similar work can be split between processes.
 
@@ -38,8 +39,11 @@ For every simulation step:
 3. An infected person keeps an infection age counter.
 4. After enough steps, the infected person becomes recovered.
 5. Recovered people do not become infected again.
+6. Vaccinated people start immune and do not become infected.
 
 I also added an intervention option. This means that after a chosen step, the infection probability can be reduced. For example, this can represent masks, distancing, or quarantine rules.
+
+I added optional movement and age groups too. Movement lets people swap with a nearby cell before each disease update. Age groups divide the population into children, adults, and seniors, and each group can have a different infection-risk multiplier.
 
 ## Main Files
 
@@ -50,6 +54,7 @@ I also added an intervention option. This means that after a chosen step, the in
 - `src/parallel_simulation.py`: parallel multiprocessing implementation
 - `src/performance.py`: measures execution time
 - `src/visualization.py`: creates charts
+- `src/gui.py`: opens a simple graphical interface
 - `experiments/`: scripts for testing different runs
 - `tests/`: tests for checking that the program works
 
@@ -90,6 +95,9 @@ Some important parameters are:
 - `--processes`: number of worker processes
 - `--intervention-step`: when prevention starts
 - `--intervention-probability`: lower infection chance after prevention starts
+- `--vaccination-rate`: fraction of initially healthy people who start vaccinated
+- `--movement-probability`: chance each person swaps with a neighbor each step
+- `--age-groups`: enables child, adult, and senior risk groups
 
 Compare sequential and parallel performance:
 
@@ -103,6 +111,12 @@ Run the tests:
 pytest
 ```
 
+Open the graphical interface:
+
+```bash
+python main.py --mode gui
+```
+
 ## What I Implemented
 
 - A grid-based disease spread model
@@ -111,6 +125,10 @@ pytest
 - Parallel simulation with `multiprocessing`
 - Timing comparison between versions
 - Optional intervention step that lowers infection probability
+- Optional vaccination
+- Optional movement
+- Optional age groups
+- A simple graphical interface
 - Charts for the results
 - Tests to check that the parallel and sequential versions match
 

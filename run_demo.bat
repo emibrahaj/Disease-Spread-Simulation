@@ -10,19 +10,9 @@ if not exist ".venv\Scripts\python.exe" (
     exit /b 1
 )
 
-echo Running parallel disease spread simulation...
-.venv\Scripts\python.exe main.py --mode parallel --grid-size 120 --steps 80 --initial-infected 10 --processes 4 --save-plots
+echo Opening disease spread simulation GUI...
+.venv\Scripts\python.exe main.py --mode gui
 
 echo.
-echo Running sequential vs parallel comparison...
-.venv\Scripts\python.exe main.py --mode compare --grid-size 160 --steps 80 --initial-infected 16 --processes 4
-
-echo.
-echo Running intervention example...
-.venv\Scripts\python.exe main.py --mode parallel --grid-size 120 --steps 80 --initial-infected 10 --processes 4 --intervention-step 30 --intervention-probability 0.12 --save-plots
-
-echo.
-echo Demo finished.
-echo Check generated charts in results\screenshots\charts
-echo Timing CSV: results\timing_results.csv
+echo GUI closed.
 pause

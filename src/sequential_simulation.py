@@ -12,6 +12,7 @@ from .population import (
     count_states,
     create_initial_population,
     deterministic_chance,
+    move_population,
 )
 
 NEIGHBOR_OFFSETS = (
@@ -38,11 +39,17 @@ def _has_infected_neighbor(state: np.ndarray, row: int, col: int) -> bool:
 
 
 def step_sequential(
-    state: np.ndarray, infection_age: np.ndarray, step: int, config: SimulationConfig
+    state: np.ndarray,
+    infection_age: np.ndarray,
+    step: int,
+    config: SimulationConfig,
+    age_groups: np.ndarray | None = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Advance the model by one time step using a single CPU process."""
     next_state = state.copy()
     next_age = infection_age.copy()
+    if age_groups is None:
+        age_groups = np.ones_like(state, dtype=np.int8)
     infection_probability = config.infection_probability_for_step(step)
 
     rows, cols = state.shape
@@ -51,7 +58,9 @@ def step_sequential(
             if state[row, col] == HEALTHY:
                 exposed = _has_infected_neighbor(state, row, col)
                 chance = deterministic_chance(row, col, step, config.seed)
-                if exposed and chance < infection_probability:
+                susceptibility = config.susceptibility_for_age_group(int(age_groups[row, col]))
+                adjusted_probability = min(1.0, infection_probability * susceptibility)
+                if exposed and chance < adjusted_probability:
                     next_state[row, col] = INFECTED
                     next_age[row, col] = 0
             elif state[row, col] == INFECTED:
@@ -64,11 +73,12 @@ def step_sequential(
 
 def run_sequential(config: SimulationConfig) -> Tuple[np.ndarray, List[dict[str, int]]]:
     """Run the complete disease simulation sequentially."""
-    state, infection_age = create_initial_population(config)
+    state, infection_age, age_groups = create_initial_population(config)
     history = [count_states(state)]
 
     for step in range(config.steps):
-        state, infection_age = step_sequential(state, infection_age, step, config)
+        state, infection_age, age_groups = move_population(state, infection_age, age_groups, step, config)
+        state, infection_age = step_sequential(state, infection_age, step, config, age_groups)
         history.append(count_states(state))
 
     return state, history
