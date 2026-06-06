@@ -5,7 +5,6 @@ __pycache__/
 
 # Generated demo output
 results/**/*.png
-results/**/*.csv
 
 # Editor files
 .vscode/

@@ -92,3 +92,11 @@ pytest
 The parallel version is useful when the grid is bigger. With very small grids, the program can be slower because starting processes and passing data also takes time.
 
 This was one of the main things I noticed while working on the project: parallel programming is not just about using more processes. The problem must be large enough for the extra work to be worth it.
+
+In one of my process-count tests, the results were approximately:
+
+- 1 process: 3.16 seconds
+- 2 processes: 1.84 seconds
+- 4 processes: 1.09 seconds
+
+This shows that the parallel version became faster when more processes were used for a larger grid.

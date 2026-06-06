@@ -3,6 +3,7 @@ import pytest
 
 from src.config import SimulationConfig
 from src.parallel_simulation import run_parallel, step_parallel
+from src.performance import benchmark_process_counts
 from src.population import HEALTHY, INFECTED, count_states, create_initial_population
 from src.sequential_simulation import run_sequential, step_sequential
 
@@ -60,3 +61,12 @@ def test_parallel_run_matches_sequential_run():
 def test_invalid_config_rejected():
     with pytest.raises(ValueError):
         SimulationConfig(grid_size=1).validate()
+
+
+def test_process_benchmark_includes_speedup():
+    config = SimulationConfig(grid_size=8, steps=2, initial_infected=2)
+
+    rows = benchmark_process_counts(config, [1])
+
+    assert rows[0]["processes"] == 1
+    assert rows[0]["speedup_vs_1_process"] == 1.0

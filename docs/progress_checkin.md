@@ -36,6 +36,12 @@ I can also run:
 
 This shows how the running time changes with 1, 2, and 4 processes.
 
+The current result from my computer was about:
+
+- 1 process: 3.16 seconds
+- 2 processes: 1.84 seconds
+- 4 processes: 1.09 seconds
+
 ## What Is Still Left
 
 - Make final screenshots for the presentation

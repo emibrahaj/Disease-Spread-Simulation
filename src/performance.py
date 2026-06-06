@@ -10,7 +10,10 @@ from .parallel_simulation import run_parallel
 from .sequential_simulation import run_sequential
 
 
-def time_run(label: str, runner: Callable[[SimulationConfig], object], config: SimulationConfig) -> dict[str, float | int | str]:
+BenchmarkRow = dict[str, float | int | str]
+
+
+def time_run(label: str, runner: Callable[[SimulationConfig], object], config: SimulationConfig) -> BenchmarkRow:
     """Measure one simulation run."""
     started = time.perf_counter()
     runner(config)
@@ -24,7 +27,7 @@ def time_run(label: str, runner: Callable[[SimulationConfig], object], config: S
     }
 
 
-def compare_modes(config: SimulationConfig) -> list[dict[str, float | int | str]]:
+def compare_modes(config: SimulationConfig) -> list[BenchmarkRow]:
     """Run sequential and parallel versions and report timing plus speedup."""
     sequential_config = SimulationConfig(
         grid_size=config.grid_size,
@@ -44,7 +47,7 @@ def compare_modes(config: SimulationConfig) -> list[dict[str, float | int | str]
     return [sequential, parallel]
 
 
-def benchmark_process_counts(config: SimulationConfig, process_counts: list[int]) -> list[dict[str, float | int | str]]:
+def benchmark_process_counts(config: SimulationConfig, process_counts: list[int]) -> list[BenchmarkRow]:
     """Measure the parallel implementation with different process counts."""
     rows = []
     for process_count in process_counts:
@@ -58,10 +61,15 @@ def benchmark_process_counts(config: SimulationConfig, process_counts: list[int]
             processes=process_count,
         )
         rows.append(time_run("parallel", run_parallel, process_config))
+
+    baseline_seconds = float(rows[0]["seconds"]) if rows else 0.0
+    for row in rows:
+        seconds = max(float(row["seconds"]), 0.0001)
+        row["speedup_vs_1_process"] = round(baseline_seconds / seconds, 3)
     return rows
 
 
-def write_csv(rows: list[dict[str, float | int | str]], output_path: str | Path) -> None:
+def write_csv(rows: list[BenchmarkRow], output_path: str | Path) -> None:
     """Save benchmark output for the report."""
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -71,3 +79,21 @@ def write_csv(rows: list[dict[str, float | int | str]], output_path: str | Path)
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
+
+
+def print_benchmark_table(rows: list[BenchmarkRow]) -> None:
+    """Print benchmark rows in a simple readable table."""
+    if not rows:
+        print("No benchmark rows to show.")
+        return
+
+    fieldnames = sorted({key for row in rows for key in row})
+    widths = {
+        field: max(len(field), *(len(str(row.get(field, ""))) for row in rows))
+        for field in fieldnames
+    }
+    header = "  ".join(field.ljust(widths[field]) for field in fieldnames)
+    print(header)
+    print("-" * len(header))
+    for row in rows:
+        print("  ".join(str(row.get(field, "")).ljust(widths[field]) for field in fieldnames))

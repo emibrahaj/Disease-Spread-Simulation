@@ -6,7 +6,7 @@ from pathlib import Path
 
 from src.config import SimulationConfig
 from src.parallel_simulation import run_parallel
-from src.performance import compare_modes, write_csv
+from src.performance import compare_modes, print_benchmark_table, write_csv
 from src.sequential_simulation import run_sequential
 from src.visualization import plot_grid, plot_history
 
@@ -47,6 +47,10 @@ def print_history_summary(history: list[dict[str, int]]) -> None:
     )
 
 
+def actual_process_count(config: SimulationConfig) -> int:
+    return min(config.processes, multiprocessing.cpu_count(), config.grid_size)
+
+
 def main() -> None:
     args = build_parser().parse_args()
     config = make_config(args)
@@ -55,8 +59,7 @@ def main() -> None:
     if args.mode == "compare":
         rows = compare_modes(config)
         write_csv(rows, "results/timing_results.csv")
-        for row in rows:
-            print(row)
+        print_benchmark_table(rows)
         print("Timing results saved to results/timing_results.csv")
         return
 
@@ -64,7 +67,7 @@ def main() -> None:
     final_state, history = runner(config)
     print(f"Mode: {args.mode}")
     print(f"Grid: {config.grid_size}x{config.grid_size}, steps: {config.steps}")
-    print(f"CPU cores available: {multiprocessing.cpu_count()}, processes used: {config.processes}")
+    print(f"CPU cores available: {multiprocessing.cpu_count()}, processes used: {actual_process_count(config)}")
     print_history_summary(history)
 
     if args.save_plots:

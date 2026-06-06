@@ -74,6 +74,12 @@ Compare sequential and parallel time:
 python main.py --mode compare --grid-size 180 --steps 100 --processes 4
 ```
 
+Compare different process counts:
+
+```bash
+python experiments/compare_processes.py
+```
+
 On Windows, the easiest way is also to double-click:
 
 ```text
@@ -95,6 +101,11 @@ or:
 ## Output
 
 The charts and timing files are saved in the `results` folder.
+
+The benchmark commands print a small table in the terminal and also save CSV files, for example:
+
+- `results/timing_results.csv`
+- `results/process_comparison.csv`
 
 For submission, the most important files are:
 

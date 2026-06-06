@@ -48,9 +48,11 @@ The parallel version splits the grid into row chunks. Each process updates one c
 
 In the process comparison experiment, using more processes reduced the running time:
 
-- 1 process: about 3.0 seconds
-- 2 processes: about 1.7 seconds
-- 4 processes: about 1.1 seconds
+- 1 process: about 3.16 seconds
+- 2 processes: about 1.84 seconds
+- 4 processes: about 1.09 seconds
+
+The output also shows the speedup compared to 1 process.
 
 ## Slide 10: What I Learned
 
