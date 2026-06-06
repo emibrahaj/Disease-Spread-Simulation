@@ -43,6 +43,14 @@ I can also show an intervention run:
 .venv\Scripts\python.exe main.py --mode parallel --intervention-step 30 --intervention-probability 0.12 --save-plots
 ```
 
+I can change parameters like this:
+
+```bash
+.venv\Scripts\python.exe main.py --mode parallel --seed 7 --grid-size 200 --initial-infected 25 --save-plots
+```
+
+The seed is useful because the same seed gives the same result every time. If I change the seed, the outbreak starts in different positions and the chart changes.
+
 The current result from my computer was about:
 
 - 1 process: 3.16 seconds

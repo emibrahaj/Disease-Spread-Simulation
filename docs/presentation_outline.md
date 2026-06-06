@@ -83,6 +83,27 @@ or on Windows:
 run_demo.bat
 ```
 
-## Slide 13: Conclusion
+## Slide 13: Parameters I Can Change
+
+I can change the simulation from the terminal:
+
+- grid size
+- number of steps
+- starting infected people
+- infection probability
+- recovery days
+- random seed
+- number of processes
+- intervention step
+
+For example:
+
+```bash
+python main.py --mode parallel --seed 7 --initial-infected 25 --save-plots
+```
+
+Using the same seed gives the same result again, which helps compare sequential and parallel versions fairly.
+
+## Slide 14: Conclusion
 
 This project shows a simple real-world style simulation and compares sequential execution with multiprocessing. It helped me understand that parallelism can improve performance, but only when the workload is large enough.

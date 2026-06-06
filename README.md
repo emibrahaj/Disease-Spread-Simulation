@@ -62,6 +62,12 @@ Run the parallel version and save charts:
 python main.py --mode parallel --save-plots
 ```
 
+If using the included virtual environment:
+
+```bash
+.venv\Scripts\python.exe main.py --mode parallel --save-plots
+```
+
 Run the sequential version:
 
 ```bash
@@ -91,6 +97,38 @@ Run the intervention comparison experiment:
 ```bash
 python experiments/compare_intervention.py
 ```
+
+## Changing The Simulation
+
+The simulation settings can be changed from the terminal.
+
+Examples:
+
+```bash
+python main.py --mode parallel --grid-size 250 --steps 150 --initial-infected 25 --save-plots
+```
+
+```bash
+python main.py --mode parallel --seed 7 --save-plots
+```
+
+```bash
+python main.py --mode parallel --infection-probability 0.20 --recovery-days 16 --save-plots
+```
+
+Useful options:
+
+- `--grid-size`: size of the city grid
+- `--steps`: number of simulation steps
+- `--initial-infected`: how many people start infected
+- `--infection-probability`: chance that infection spreads to a neighbor
+- `--recovery-days`: how long before an infected person recovers
+- `--seed`: controls the repeatable random behavior
+- `--processes`: how many worker processes the parallel version should use
+- `--intervention-step`: step where prevention measures start
+- `--intervention-probability`: infection probability after prevention measures start
+
+Using the same seed and same settings gives the same result every time. Changing the seed gives a different outbreak pattern.
 
 On Windows, the easiest way is also to double-click:
 

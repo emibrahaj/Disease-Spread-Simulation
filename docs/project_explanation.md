@@ -67,6 +67,30 @@ Run the parallel simulation:
 python main.py --mode parallel --save-plots
 ```
 
+The settings can also be changed from the terminal. For example:
+
+```bash
+python main.py --mode parallel --grid-size 250 --steps 150 --initial-infected 25 --save-plots
+```
+
+Changing the seed gives a different outbreak pattern:
+
+```bash
+python main.py --mode parallel --seed 7 --save-plots
+```
+
+Some important parameters are:
+
+- `--grid-size`: how large the population grid is
+- `--steps`: how many simulation steps are run
+- `--initial-infected`: how many people start infected
+- `--infection-probability`: how easily the disease spreads
+- `--recovery-days`: how long infection lasts
+- `--seed`: controls the repeatable random behavior
+- `--processes`: number of worker processes
+- `--intervention-step`: when prevention starts
+- `--intervention-probability`: lower infection chance after prevention starts
+
 Compare sequential and parallel performance:
 
 ```bash
