@@ -1,52 +1,52 @@
-# Presentation Outline
+# Presentation Notes
 
 ## Slide 1: Title
 
 Parallel Disease Spread Simulation
 
-## Slide 2: Project Goal
+## Slide 2: What My Project Does
 
-The goal is to simulate how a disease spreads through a population and compare a sequential implementation with a parallel multiprocessing implementation.
+My project simulates a disease spreading through a population. The population is shown as a grid, and each cell is one person.
 
-## Slide 3: Real-World Context
+## Slide 3: States In The Simulation
 
-Disease spread simulations are used in scientific computing and epidemiology to understand outbreak behavior, infection peaks, and recovery patterns.
+Each person can be:
 
-## Slide 4: Model
+- healthy
+- infected
+- recovered
 
-The city is represented as a 2D grid. Each cell is one person:
+## Slide 4: Basic Rules
 
-- Healthy
-- Infected
-- Recovered
-
-## Slide 5: Simulation Rules
-
-- Healthy people can become infected if they have an infected neighbor.
-- Infected people recover after a fixed number of simulation days.
+- Healthy people can become infected from nearby infected people.
+- Infected people recover after some simulation steps.
 - Recovered people stay recovered.
-- Each step updates the whole population.
+- The simulation repeats this for many steps.
 
-## Slide 6: Parallel Programming Approach
+## Slide 5: Why It Is Related To Parallel Programming
 
-The parallel version splits the grid into row chunks. Each process updates one chunk at the same time. After all processes finish, the main process combines the chunks into the next grid.
+The grid has many cells, and each step repeats the same type of calculation for every cell. This makes it possible to divide the work between processes.
 
-## Slide 7: Why Parallelism Helps
+## Slide 6: Sequential Version
 
-Each cell update mostly depends on the previous grid state, so many cells can be processed independently. Larger grids create more work, which makes parallel processing more useful.
+The sequential version updates the whole grid using one process. This is the simpler version and is used as the comparison point.
 
-## Slide 8: Files Implemented
+## Slide 7: Parallel Version
 
-- `main.py`: command-line runner
-- `src/sequential_simulation.py`: sequential version
-- `src/parallel_simulation.py`: multiprocessing version
-- `src/performance.py`: timing tests
-- `src/visualization.py`: charts
-- `tests/test_simulation.py`: correctness tests
+The parallel version splits the grid into row chunks. Each process updates one chunk, and then the main process combines the results.
+
+## Slide 8: Files I Worked On
+
+- `main.py`
+- `src/sequential_simulation.py`
+- `src/parallel_simulation.py`
+- `src/performance.py`
+- `src/visualization.py`
+- `tests/test_simulation.py`
 
 ## Slide 9: Results
 
-The process comparison experiment showed that using more processes reduced runtime on the test machine:
+In the process comparison experiment, using more processes reduced the running time:
 
 - 1 process: about 3.0 seconds
 - 2 processes: about 1.7 seconds
@@ -54,18 +54,18 @@ The process comparison experiment showed that using more processes reduced runti
 
 ## Slide 10: What I Learned
 
-- Parallel programs need correct work splitting.
-- Process creation and communication add overhead.
-- Small simulations may not benefit much from parallelism.
-- Larger workloads show clearer speedup.
+- How to split a grid into parts
+- How to use multiprocessing in Python
+- Why parallel code can have overhead
+- Why bigger workloads show better parallel performance
 
-## Slide 11: How To Run
+## Slide 11: How I Run It
 
 ```bash
 .venv\Scripts\python.exe main.py --mode parallel --save-plots
 ```
 
-or double-click:
+or on Windows:
 
 ```text
 run_demo.bat
@@ -73,4 +73,4 @@ run_demo.bat
 
 ## Slide 12: Conclusion
 
-The project demonstrates a real scientific computing problem and shows how multiprocessing can improve performance when the workload is large enough.
+This project shows a simple real-world style simulation and compares sequential execution with multiprocessing. It helped me understand that parallelism can improve performance, but only when the workload is large enough.

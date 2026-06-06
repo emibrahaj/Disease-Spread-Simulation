@@ -2,42 +2,43 @@
 
 ## Topic
 
-Parallel disease spread simulation using Python multiprocessing.
+My topic is a disease spread simulation using parallel programming in Python.
 
-## What Is Working
+## What I Have Done So Far
 
-- The population is represented as a 2D grid.
-- Each person can be healthy, infected, or recovered.
-- The sequential simulation runs correctly.
-- The parallel simulation runs with multiple processes.
-- The parallel and sequential versions produce the same result for the same seed.
-- Charts and timing CSV files can be generated.
-- Automated tests pass.
+- I created a 2D grid for the population.
+- Each cell can be healthy, infected, or recovered.
+- I made a sequential version of the simulation.
+- I made a parallel version using multiprocessing.
+- I added charts so the result can be seen more clearly.
+- I added timing tests to compare one process with multiple processes.
+- I added tests to check that the parallel version gives the same result as the sequential version.
 
-## What I Can Show In Lab
+## What I Can Show
 
-Run:
+I can run the simulation with:
 
 ```bash
 .venv\Scripts\python.exe main.py --mode parallel --save-plots
 ```
 
-Then show the generated chart images in:
+Then I can show the generated charts from:
 
 ```text
 results\screenshots\charts
 ```
 
-Run:
+I can also run:
 
 ```bash
 .venv\Scripts\python.exe experiments\compare_processes.py
 ```
 
-Then explain how runtime changes when using 1, 2, and 4 processes.
+This shows how the running time changes with 1, 2, and 4 processes.
 
-## What Still Can Be Improved
+## What Is Still Left
 
-- Add more experiments with different infection probabilities.
-- Add a final PowerPoint using the outline in `docs/presentation_outline.md`.
-- Add screenshots of final charts to the printed report.
+- Make final screenshots for the presentation
+- Choose the best results to show
+- Prepare the final printed README or PowerPoint
+- Maybe add one more experiment with a different infection probability

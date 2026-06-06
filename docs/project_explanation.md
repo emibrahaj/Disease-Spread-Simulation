@@ -1,52 +1,59 @@
 # Parallel Disease Spread Simulation
 
-## Project Idea
+## Project Description
 
-This project simulates how an infectious disease spreads through a city represented as a 2D grid. Each cell is one person and can be in one of three states:
+For this project I made a small disease spread simulation. The population is shown as a 2D grid, and each cell in the grid represents one person.
 
-- Healthy
-- Infected
-- Recovered
+A person can be in one of these states:
 
-The simulation is a practical example of scientific computing. Similar models are used in epidemiology to study how infections move through a population and how quickly outbreaks grow or disappear.
+- healthy
+- infected
+- recovered
 
-## Parallel Programming Connection
+The idea is similar to a basic SIR model. It is not meant to be a perfect medical model, but it is a good example for showing how a large amount of similar work can be split between processes.
 
-The project contains two implementations:
+## Why I Chose This Topic
 
-- `run_sequential`: updates the whole grid using one process.
-- `run_parallel`: splits the grid into row chunks and processes those chunks using Python multiprocessing.
+I chose disease spread because it is easy to understand visually, but it also connects to real scientific computing. Simulations like this can be used to test how an infection might move through a population.
 
-Each worker process calculates the next state for its assigned rows. The main process then combines all updated chunks into the next full grid. This is a good fit for parallelism because most cell updates are independent once the current grid state is known.
+It also fits parallel programming because the grid has many cells, and every step needs many repeated calculations.
 
-## Model Rules
+## Parallel Programming Part
 
-At every step:
+I implemented two versions:
 
-1. A healthy person checks the eight neighboring cells around them.
-2. If at least one neighbor is infected, the healthy person can become infected.
+- `run_sequential`, which updates the full grid with one process
+- `run_parallel`, which divides the grid into row chunks and uses more than one process
+
+In the parallel version, each process updates only its own group of rows. After that, the main process puts the updated rows back together.
+
+The program uses the same starting seed for both versions, so the sequential and parallel results can be compared fairly.
+
+## Simulation Rules
+
+For every simulation step:
+
+1. A healthy person checks the eight nearby cells.
+2. If one of the neighbors is infected, the healthy person may become infected.
 3. An infected person keeps an infection age counter.
-4. When the infection age reaches the configured recovery time, the person becomes recovered.
-5. Recovered people stay recovered.
+4. After enough steps, the infected person becomes recovered.
+5. Recovered people do not become infected again.
 
-The simulation uses a deterministic seeded chance function. This means the sequential and parallel versions can be compared fairly because they produce the same result for the same configuration.
+## Main Files
 
-## Files
+- `main.py`: runs the program from the terminal
+- `src/config.py`: stores the simulation settings
+- `src/population.py`: creates the starting grid and counts people
+- `src/sequential_simulation.py`: sequential implementation
+- `src/parallel_simulation.py`: parallel multiprocessing implementation
+- `src/performance.py`: measures execution time
+- `src/visualization.py`: creates charts
+- `experiments/`: scripts for testing different runs
+- `tests/`: tests for checking that the program works
 
-- `main.py`: command-line entry point.
-- `src/config.py`: simulation settings.
-- `src/population.py`: grid creation and state counting.
-- `src/sequential_simulation.py`: one-process implementation.
-- `src/parallel_simulation.py`: multiprocessing implementation.
-- `src/performance.py`: timing and benchmark helpers.
-- `src/visualization.py`: charts for the simulation result.
-- `experiments/`: small scripts for running experiments.
-- `tests/`: correctness tests.
-- `results/`: generated timing data and charts.
+## How To Run It
 
-## How To Run
-
-Install dependencies:
+Install requirements:
 
 ```bash
 pip install -r requirements.txt
@@ -58,29 +65,30 @@ Run the parallel simulation:
 python main.py --mode parallel --save-plots
 ```
 
-Compare sequential and parallel timing:
+Compare sequential and parallel performance:
 
 ```bash
 python main.py --mode compare --grid-size 180 --steps 100 --processes 4
 ```
 
-Run tests:
+Run the tests:
 
 ```bash
 pytest
 ```
 
-## What Was Implemented
+## What I Implemented
 
-- A grid-based SIR disease model.
-- Sequential simulation.
-- Parallel simulation using `multiprocessing.Pool`.
-- Deterministic infection decisions for fair comparison.
-- Benchmarking of sequential vs parallel execution.
-- Process-count comparison experiment.
-- Result visualization with Matplotlib.
-- Automated tests checking correctness.
+- A grid-based disease spread model
+- Healthy, infected, and recovered states
+- Sequential simulation
+- Parallel simulation with `multiprocessing`
+- Timing comparison between versions
+- Charts for the results
+- Tests to check that the parallel and sequential versions match
 
-## Notes About Performance
+## Performance Notes
 
-Parallelism helps most when the grid is large enough. For very small grids, multiprocessing overhead can be larger than the useful work. This is an important real-world parallel programming lesson: parallel programs are not automatically faster, because creating processes and transferring data also has a cost.
+The parallel version is useful when the grid is bigger. With very small grids, the program can be slower because starting processes and passing data also takes time.
+
+This was one of the main things I noticed while working on the project: parallel programming is not just about using more processes. The problem must be large enough for the extra work to be worth it.
