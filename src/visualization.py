@@ -10,7 +10,12 @@ from matplotlib.colors import ListedColormap
 from .population import HEALTHY, INFECTED, RECOVERED
 
 
-def plot_history(history: Sequence[dict[str, int]], output_path: str | Path | None = None) -> None:
+def plot_history(
+    history: Sequence[dict[str, int]],
+    output_path: str | Path | None = None,
+    title: str = "Disease Spread Over Time",
+    intervention_step: int | None = None,
+) -> None:
     """Plot healthy, infected, and recovered counts over time."""
     steps = range(len(history))
     healthy = [item["healthy"] for item in history]
@@ -23,7 +28,16 @@ def plot_history(history: Sequence[dict[str, int]], output_path: str | Path | No
     plt.plot(steps, recovered, label="Recovered", color="#27ae60")
     plt.xlabel("Simulation step")
     plt.ylabel("People")
-    plt.title("Disease Spread Over Time")
+    if intervention_step is not None:
+        plt.axvline(
+            intervention_step,
+            color="#333333",
+            linestyle="--",
+            linewidth=1.2,
+            label="Intervention starts",
+        )
+
+    plt.title(title)
     plt.legend()
     plt.tight_layout()
 

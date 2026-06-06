@@ -38,6 +38,7 @@ def _process_rows(
     target_end = target_start + row_count
     next_rows = state_slice[target_start:target_end].copy()
     next_age_rows = age_slice[target_start:target_end].copy()
+    infection_probability = config.infection_probability_for_step(step)
 
     for local_row in range(row_count):
         row = start_row + local_row
@@ -46,7 +47,7 @@ def _process_rows(
             if state_slice[source_row, col] == HEALTHY:
                 exposed = _has_infected_neighbor_in_slice(state_slice, source_row, col)
                 chance = deterministic_chance(row, col, step, config.seed)
-                if exposed and chance < config.infection_probability:
+                if exposed and chance < infection_probability:
                     next_rows[local_row, col] = INFECTED
                     next_age_rows[local_row, col] = 0
             elif state_slice[source_row, col] == INFECTED:

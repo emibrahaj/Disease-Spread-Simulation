@@ -44,7 +44,17 @@ The parallel version splits the grid into row chunks. Each process updates one c
 - `src/visualization.py`
 - `tests/test_simulation.py`
 
-## Slide 9: Results
+## Slide 9: Extra Feature
+
+I added an intervention setting. After a selected step, the infection probability becomes lower. This can represent prevention measures like distancing or quarantine.
+
+Example:
+
+```bash
+python main.py --mode parallel --intervention-step 30 --intervention-probability 0.12 --save-plots
+```
+
+## Slide 10: Results
 
 In the process comparison experiment, using more processes reduced the running time:
 
@@ -54,14 +64,14 @@ In the process comparison experiment, using more processes reduced the running t
 
 The output also shows the speedup compared to 1 process.
 
-## Slide 10: What I Learned
+## Slide 11: What I Learned
 
 - How to split a grid into parts
 - How to use multiprocessing in Python
 - Why parallel code can have overhead
 - Why bigger workloads show better parallel performance
 
-## Slide 11: How I Run It
+## Slide 12: How I Run It
 
 ```bash
 .venv\Scripts\python.exe main.py --mode parallel --save-plots
@@ -73,6 +83,6 @@ or on Windows:
 run_demo.bat
 ```
 
-## Slide 12: Conclusion
+## Slide 13: Conclusion
 
 This project shows a simple real-world style simulation and compares sequential execution with multiprocessing. It helped me understand that parallelism can improve performance, but only when the workload is large enough.

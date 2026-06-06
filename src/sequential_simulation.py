@@ -43,6 +43,7 @@ def step_sequential(
     """Advance the model by one time step using a single CPU process."""
     next_state = state.copy()
     next_age = infection_age.copy()
+    infection_probability = config.infection_probability_for_step(step)
 
     rows, cols = state.shape
     for row in range(rows):
@@ -50,7 +51,7 @@ def step_sequential(
             if state[row, col] == HEALTHY:
                 exposed = _has_infected_neighbor(state, row, col)
                 chance = deterministic_chance(row, col, step, config.seed)
-                if exposed and chance < config.infection_probability:
+                if exposed and chance < infection_probability:
                     next_state[row, col] = INFECTED
                     next_age[row, col] = 0
             elif state[row, col] == INFECTED:

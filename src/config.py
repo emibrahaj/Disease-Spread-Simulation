@@ -14,6 +14,8 @@ class SimulationConfig:
     recovery_days: int = 12
     seed: int = 42
     processes: int = 4
+    intervention_step: int | None = None
+    intervention_infection_probability: float | None = None
 
     def validate(self) -> None:
         if self.grid_size <= 2:
@@ -30,3 +32,18 @@ class SimulationConfig:
             raise ValueError("recovery_days must be at least 1")
         if self.processes < 1:
             raise ValueError("processes must be at least 1")
+        if self.intervention_step is not None and self.intervention_step < 0:
+            raise ValueError("intervention_step cannot be negative")
+        if self.intervention_infection_probability is not None:
+            if not 0 <= self.intervention_infection_probability <= 1:
+                raise ValueError("intervention_infection_probability must be between 0 and 1")
+
+    def infection_probability_for_step(self, step: int) -> float:
+        """Return normal or intervention infection probability for the current step."""
+        if (
+            self.intervention_step is not None
+            and self.intervention_infection_probability is not None
+            and step >= self.intervention_step
+        ):
+            return self.intervention_infection_probability
+        return self.infection_probability

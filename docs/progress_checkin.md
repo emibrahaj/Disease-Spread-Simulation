@@ -12,6 +12,7 @@ My topic is a disease spread simulation using parallel programming in Python.
 - I made a parallel version using multiprocessing.
 - I added charts so the result can be seen more clearly.
 - I added timing tests to compare one process with multiple processes.
+- I added an intervention option that lowers infection probability after a chosen step.
 - I added tests to check that the parallel version gives the same result as the sequential version.
 
 ## What I Can Show
@@ -35,6 +36,12 @@ I can also run:
 ```
 
 This shows how the running time changes with 1, 2, and 4 processes.
+
+I can also show an intervention run:
+
+```bash
+.venv\Scripts\python.exe main.py --mode parallel --intervention-step 30 --intervention-probability 0.12 --save-plots
+```
 
 The current result from my computer was about:
 

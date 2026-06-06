@@ -63,6 +63,35 @@ def test_invalid_config_rejected():
         SimulationConfig(grid_size=1).validate()
 
 
+def test_intervention_changes_infection_probability_after_step():
+    config = SimulationConfig(
+        infection_probability=0.8,
+        intervention_step=5,
+        intervention_infection_probability=0.2,
+    )
+
+    assert config.infection_probability_for_step(4) == 0.8
+    assert config.infection_probability_for_step(5) == 0.2
+    assert config.infection_probability_for_step(8) == 0.2
+
+
+def test_intervention_reduces_spread():
+    normal_config = SimulationConfig(grid_size=20, steps=10, initial_infected=5, processes=2)
+    intervention_config = SimulationConfig(
+        grid_size=20,
+        steps=10,
+        initial_infected=5,
+        processes=2,
+        intervention_step=2,
+        intervention_infection_probability=0.0,
+    )
+
+    _, normal_history = run_parallel(normal_config)
+    _, intervention_history = run_parallel(intervention_config)
+
+    assert intervention_history[-1]["infected"] <= normal_history[-1]["infected"]
+
+
 def test_process_benchmark_includes_speedup():
     config = SimulationConfig(grid_size=8, steps=2, initial_infected=2)
 

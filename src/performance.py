@@ -37,6 +37,8 @@ def compare_modes(config: SimulationConfig) -> list[BenchmarkRow]:
         recovery_days=config.recovery_days,
         seed=config.seed,
         processes=1,
+        intervention_step=config.intervention_step,
+        intervention_infection_probability=config.intervention_infection_probability,
     )
 
     sequential = time_run("sequential", run_sequential, sequential_config)
@@ -59,6 +61,8 @@ def benchmark_process_counts(config: SimulationConfig, process_counts: list[int]
             recovery_days=config.recovery_days,
             seed=config.seed,
             processes=process_count,
+            intervention_step=config.intervention_step,
+            intervention_infection_probability=config.intervention_infection_probability,
         )
         rows.append(time_run("parallel", run_parallel, process_config))
 

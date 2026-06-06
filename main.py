@@ -21,6 +21,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--recovery-days", type=int, default=12)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--processes", type=int, default=max(1, multiprocessing.cpu_count() // 2))
+    parser.add_argument(
+        "--intervention-step",
+        type=int,
+        default=None,
+        help="Step where prevention measures begin, for example quarantine or distancing.",
+    )
+    parser.add_argument(
+        "--intervention-probability",
+        type=float,
+        default=None,
+        help="Lower infection probability after the intervention step.",
+    )
     parser.add_argument("--save-plots", action="store_true")
     return parser
 
@@ -34,6 +46,8 @@ def make_config(args: argparse.Namespace) -> SimulationConfig:
         recovery_days=args.recovery_days,
         seed=args.seed,
         processes=args.processes,
+        intervention_step=args.intervention_step,
+        intervention_infection_probability=args.intervention_probability,
     )
 
 
@@ -68,11 +82,21 @@ def main() -> None:
     print(f"Mode: {args.mode}")
     print(f"Grid: {config.grid_size}x{config.grid_size}, steps: {config.steps}")
     print(f"CPU cores available: {multiprocessing.cpu_count()}, processes used: {actual_process_count(config)}")
+    if config.intervention_step is not None and config.intervention_infection_probability is not None:
+        print(
+            "Intervention: "
+            f"step {config.intervention_step}, infection probability "
+            f"{config.intervention_infection_probability}"
+        )
     print_history_summary(history)
 
     if args.save_plots:
         output_dir = Path("results/screenshots/charts")
-        plot_history(history, output_dir / f"{args.mode}_history.png")
+        plot_history(
+            history,
+            output_dir / f"{args.mode}_history.png",
+            intervention_step=config.intervention_step,
+        )
         plot_grid(final_state, output_dir / f"{args.mode}_final_grid.png")
         print(f"Plots saved in {output_dir}")
 

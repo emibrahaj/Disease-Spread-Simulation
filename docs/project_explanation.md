@@ -39,6 +39,8 @@ For every simulation step:
 4. After enough steps, the infected person becomes recovered.
 5. Recovered people do not become infected again.
 
+I also added an intervention option. This means that after a chosen step, the infection probability can be reduced. For example, this can represent masks, distancing, or quarantine rules.
+
 ## Main Files
 
 - `main.py`: runs the program from the terminal
@@ -84,6 +86,7 @@ pytest
 - Sequential simulation
 - Parallel simulation with `multiprocessing`
 - Timing comparison between versions
+- Optional intervention step that lowers infection probability
 - Charts for the results
 - Tests to check that the parallel and sequential versions match
 

@@ -80,6 +80,18 @@ Compare different process counts:
 python experiments/compare_processes.py
 ```
 
+Run an intervention example, where prevention measures start at step 30:
+
+```bash
+python main.py --mode parallel --intervention-step 30 --intervention-probability 0.12 --save-plots
+```
+
+Run the intervention comparison experiment:
+
+```bash
+python experiments/compare_intervention.py
+```
+
 On Windows, the easiest way is also to double-click:
 
 ```text
