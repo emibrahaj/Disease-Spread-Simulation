@@ -24,7 +24,6 @@ The simulation also includes optional vaccination, movement, and age-group setti
 ```text
 .
 |-- main.py
-|-- run_demo.bat
 |-- src/
 |   |-- config.py
 |   |-- population.py
@@ -150,10 +149,10 @@ The GUI can also run the simulation with the same main settings and show the his
 
 Using the same seed and same settings gives the same result every time. Changing the seed gives a different outbreak pattern.
 
-On Windows, the easiest way to open the graphical interface is to double-click:
+On Windows, open the graphical interface from PowerShell or Command Prompt:
 
-```text
-run_demo.bat
+```bash
+python main.py --mode gui
 ```
 
 ## Run Tests
